@@ -1,10 +1,37 @@
 pub struct AsciiLogo {
-    pub lines: Vec<&'static str>,
-    pub color: &'static str,
+    pub lines: Vec<String>,
+    pub color: String,
 }
 
 impl AsciiLogo {
     pub fn get(os_name: &str) -> Self {
+        if os_name.eq_ignore_ascii_case("none") {
+            return Self {
+                lines: vec![],
+                color: "white".to_string(),
+            };
+        }
+
+        if os_name.starts_with('/') || os_name.starts_with("~/") || os_name.starts_with("./") {
+            let path = if os_name.starts_with("~/") {
+                if let Some(mut home) = dirs::home_dir() {
+                    home.push(os_name.trim_start_matches("~/"));
+                    home
+                } else {
+                    std::path::PathBuf::from(os_name)
+                }
+            } else {
+                std::path::PathBuf::from(os_name)
+            };
+
+            if let Ok(content) = std::fs::read_to_string(path) {
+                return Self {
+                    lines: content.lines().map(|s| s.to_string()).collect(),
+                    color: "white".to_string(),
+                };
+            }
+        }
+
         let name_lower = os_name.to_lowercase();
         if name_lower.contains("arch") {
             Self {
@@ -27,8 +54,8 @@ impl AsciiLogo {
                     r#"      /                             \     "#,
                     r#"     /                               \    "#,
                     r#"    /_/                             \_\   "#,
-                ],
-                color: "cyan",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "cyan".to_string(),
             }
         } else if name_lower.contains("kali") {
             Self {
@@ -50,8 +77,8 @@ impl AsciiLogo {
                     r#"                                          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         } else if name_lower.contains("redhat") || name_lower.contains("rhel") {
             Self {
@@ -73,8 +100,8 @@ impl AsciiLogo {
                     r#"                                          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "red",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "red".to_string(),
             }
         } else if name_lower.contains("cachyos") {
             Self {
@@ -97,8 +124,8 @@ impl AsciiLogo {
                     r#"        -=======++++::::::::::.....   "#,
                     r#"         :======++++====+++***********"#,
                     r#"          :=====+++=================="#,
-                ],
-                color: "cyan",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "cyan".to_string(),
             }
         } else if name_lower.contains("debian") {
             Self {
@@ -120,8 +147,8 @@ impl AsciiLogo {
                     r#"         `Y$$b.                           "#,
                     r#"             `"Y$b._                      "#,
                     r#"                 `"""                     "#,
-                ],
-                color: "red",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "red".to_string(),
             }
         } else if name_lower.contains("fedora") {
             Self {
@@ -144,8 +171,8 @@ impl AsciiLogo {
                     r#"      .;cccccccccccccccccccccc;.          "#,
                     r#"         .';:cccccccccccc:;,.             "#,
                     r#"             .',;::::;,'.                 "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         } else if name_lower.contains("mint") {
             Self {
@@ -168,8 +195,8 @@ impl AsciiLogo {
                     r#"     .-MMMM.-MMMMMMMMMMMMMMM-.MMMM-.      "#,
                     r#"        .-MMMM``..-:::::-..``MMMM-.       "#,
                     r#"            .-MMMMMMMMMMMMMMM-.           "#,
-                ],
-                color: "green",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "green".to_string(),
             }
         } else if name_lower.contains("suse") || name_lower.contains("opensuse") {
             Self {
@@ -191,8 +218,8 @@ impl AsciiLogo {
                     r#"                                          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "green",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "green".to_string(),
             }
         } else if name_lower.contains("alpine") {
             Self {
@@ -214,8 +241,8 @@ impl AsciiLogo {
                     r#"      \/_ _/            \_ _\/            "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         } else if name_lower.contains("nixos") {
             Self {
@@ -237,8 +264,8 @@ impl AsciiLogo {
                     r#"            \\\\  \\\\\\                  "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         } else if name_lower.contains("gentoo") {
             Self {
@@ -260,8 +287,8 @@ impl AsciiLogo {
                     r#"                   `-/ooyhhs/-            "#,
                     r#"                       `...               "#,
                     r#"                                          "#,
-                ],
-                color: "magenta",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "magenta".to_string(),
             }
         } else if name_lower.contains("void") {
             Self {
@@ -283,8 +310,8 @@ impl AsciiLogo {
                     r#"                \    |                    "#,
                     r#"                 \___|                    "#,
                     r#"                                          "#,
-                ],
-                color: "green",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "green".to_string(),
             }
         } else if name_lower.contains("manjaro") {
             Self {
@@ -306,8 +333,8 @@ impl AsciiLogo {
                     r#"    ████████  ████████  ████████          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "green",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "green".to_string(),
             }
         } else if name_lower.contains("mac") || name_lower.contains("darwin") {
             Self {
@@ -329,8 +356,8 @@ impl AsciiLogo {
                     r#"                                          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "white",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "white".to_string(),
             }
         } else if name_lower.contains("windows") {
             Self {
@@ -353,8 +380,8 @@ impl AsciiLogo {
                     r#"         `' \\*::  :ccllllllllllllllll    "#,
                     r#"                       ````''*::cllll     "#,
                     r#"                                 ````     "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         } else if name_lower.contains("ubuntu") {
             Self {
@@ -376,8 +403,8 @@ impl AsciiLogo {
                     r#"                                          "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "yellow",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "yellow".to_string(),
             }
         } else {
             // Default Tux
@@ -400,8 +427,8 @@ impl AsciiLogo {
                     r#"                 `-----`                  "#,
                     r#"                                          "#,
                     r#"                                          "#,
-                ],
-                color: "blue",
+                ].iter().map(|s| s.to_string()).collect(),
+                color: "blue".to_string(),
             }
         }
     }

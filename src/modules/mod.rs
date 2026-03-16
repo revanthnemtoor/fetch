@@ -18,3 +18,4 @@ pub mod cpu_freq;
 pub mod vram;
 pub mod wifi;
 pub mod extended;
+pub mod custom;

@@ -1,5 +1,5 @@
-use std::fs;
 use crate::core::module::Module;
+use crate::core::sys_paths::CPUINFO;
 
 pub struct CpuModule;
 
@@ -9,11 +9,11 @@ impl Module for CpuModule {
     }
 
     fn fetch(&self) -> Vec<(String, String)> {
-        if let Ok(content) = fs::read_to_string("/proc/cpuinfo") {
+        if !CPUINFO.is_empty() {
             let mut model_name = String::new();
             let mut cores = 0;
 
-            for line in content.lines() {
+            for line in CPUINFO.lines() {
                 if line.starts_with("model name") {
                     if model_name.is_empty() {
                         model_name = line.split(':').nth(1).unwrap_or("").trim().to_string();

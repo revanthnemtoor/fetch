@@ -94,10 +94,11 @@ pub struct SwapModule;
 impl Module for SwapModule {
     fn name(&self) -> &'static str { "Swap" }
     fn fetch(&self) -> Vec<(String, String)> {
-        if let Ok(content) = fs::read_to_string("/proc/meminfo") {
+        use crate::core::sys_paths::MEMINFO;
+        if !MEMINFO.is_empty() {
             let mut total = 0;
             let mut free = 0;
-            for line in content.lines() {
+            for line in MEMINFO.lines() {
                 if line.starts_with("SwapTotal:") {
                     total = line.split_whitespace().nth(1).and_then(|n| n.parse::<u64>().ok()).unwrap_or(0);
                 } else if line.starts_with("SwapFree:") {

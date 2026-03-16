@@ -1,6 +1,21 @@
 use colored::*;
+use crate::config::ThemeConfig;
 
-pub fn print_layout(logo: &crate::ui::ascii::AsciiLogo, sys_info: &Vec<(String, String)>) {
+fn colorize(text: &str, color: &str) -> colored::ColoredString {
+    match color {
+        "cyan" => text.cyan().bold(),
+        "yellow" => text.yellow().bold(),
+        "blue" => text.blue().bold(),
+        "red" => text.red().bold(),
+        "green" => text.green().bold(),
+        "magenta" => text.magenta().bold(),
+        "black" => text.black().bold(),
+        "white" => text.white().bold(),
+        _ => text.normal(),
+    }
+}
+
+pub fn print_layout(logo: &crate::ui::ascii::AsciiLogo, sys_info: &Vec<(String, String)>, theme: &ThemeConfig) {
     let logo_lines = &logo.lines;
     
     let max_lines = std::cmp::max(logo_lines.len(), sys_info.len());
@@ -9,18 +24,9 @@ pub fn print_layout(logo: &crate::ui::ascii::AsciiLogo, sys_info: &Vec<(String, 
     for line_idx in 0..max_lines {
         // Print Logo Line
         let logo_str = if line_idx < logo_lines.len() {
-            let line = logo_lines[line_idx];
+            let line = &logo_lines[line_idx];
             let padding = " ".repeat(logo_width.saturating_sub(line.chars().count()));
-            let colored_line = match logo.color {
-                "cyan" => line.cyan().bold(),
-                "yellow" => line.yellow().bold(),
-                "blue" => line.blue().bold(),
-                "red" => line.red().bold(),
-                "green" => line.green().bold(),
-                "magenta" => line.magenta().bold(),
-                _ => line.white().bold(),
-            };
-            format!("{}{}", colored_line, padding)
+            format!("{}{}", colorize(line, &logo.color), padding)
         } else {
             " ".repeat(logo_width) // Padding if logo is shorter
         };
@@ -28,21 +34,25 @@ pub fn print_layout(logo: &crate::ui::ascii::AsciiLogo, sys_info: &Vec<(String, 
         // Print Sys Info Line
         let info_str = if line_idx < sys_info.len() {
             let (key, val) = &sys_info[line_idx];
-            let key_colored = match logo.color {
-                "cyan" => key.cyan().bold(),
-                "yellow" => key.yellow().bold(),
-                "blue" => key.blue().bold(),
-                "red" => key.red().bold(),
-                "green" => key.green().bold(),
-                "magenta" => key.magenta().bold(),
-                _ => key.white().bold(),
-            };
-            format!("{}: {}", key_colored, val)
+            let key_colored = colorize(key, &theme.color_key);
+            let val_colored = colorize(val, &theme.color_value);
+            format!("{} {} {}", key_colored, theme.separator, val_colored)
         } else {
             "".to_string()
         };
 
         println!("  {}   {}", logo_str, info_str);
+    }
+    println!();
+}
+
+pub fn print_table(sys_info: &Vec<(String, String)>) {
+    let max_key_len = sys_info.iter().map(|(k, _)| k.chars().count()).max().unwrap_or(10);
+    
+    println!();
+    for (key, val) in sys_info {
+        let padding = " ".repeat(max_key_len.saturating_sub(key.chars().count()));
+        println!("{}{}  {}", key.bold(), padding, val);
     }
     println!();
 }

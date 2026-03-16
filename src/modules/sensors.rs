@@ -26,7 +26,8 @@ impl Module for SensorsModule {
                         if let Ok(temp_str) = fs::read_to_string(temp_path) {
                             if let Ok(millidegrees) = temp_str.trim().parse::<f64>() {
                                 let c = millidegrees / 1000.0;
-                                results.push(("CPU Temp".to_string(), format!("{:.1}°C", c)));
+                                let label_suffix = if name == "coretemp" { "Core" } else { name };
+                                results.push((format!("CPU Temp ({})", label_suffix), format!("{:.1}°C", c)));
                             }
                         }
                     }

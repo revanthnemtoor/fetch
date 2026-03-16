@@ -1,14 +1,44 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CustomModuleConfig {
+    pub name: String,
+    pub command: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ThemeConfig {
+    pub color_key: String,
+    pub color_value: String,
+    pub separator: String,
+}
+
+impl Default for ThemeConfig {
+    fn default() -> Self {
+        Self {
+            color_key: "blue".to_string(),
+            color_value: "white".to_string(),
+            separator: ":".to_string(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub logo: String,
     pub modules: Vec<String>,
-    pub theme: String,
+    #[serde(default)]
+    pub custom: Vec<CustomModuleConfig>,
+    #[serde(default)]
+    pub theme: ThemeConfig,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
+            logo: "default".to_string(),
+            custom: vec![],
+            theme: ThemeConfig::default(),
             modules: vec![
                 "os".to_string(),
                 "hostname".to_string(),
@@ -39,7 +69,6 @@ impl Default for Config {
                 "battery".to_string(),
                 "environment".to_string(),
             ],
-            theme: "default".to_string(),
         }
     }
 }
@@ -48,10 +77,17 @@ impl Config {
     pub fn load(cli_path: Option<&str>) -> Self {
         let mut path = dirs::config_dir().unwrap_or_default();
         path.push("fetch");
-        path.push("config.toml");
 
+        // Determine if cli_path is an exact path or a named profile
         if let Some(custom_path) = cli_path {
-            path = std::path::PathBuf::from(custom_path);
+            if custom_path.contains('/') || custom_path.ends_with(".toml") {
+                path = std::path::PathBuf::from(custom_path);
+            } else {
+                path.push("profiles");
+                path.push(format!("{}.toml", custom_path));
+            }
+        } else {
+            path.push("config.toml");
         }
 
         if let Ok(content) = std::fs::read_to_string(&path) {
@@ -60,15 +96,19 @@ impl Config {
             }
         }
 
-        // Generate default config file if missing
-        let default_config = Self::default();
-        if let Some(parent) = path.parent() {
-            let _ = std::fs::create_dir_all(parent);
-            if let Ok(toml_str) = toml::to_string_pretty(&default_config) {
-                let _ = std::fs::write(&path, toml_str);
+        // Generate default config file only if we are targeting the root default config
+        if cli_path.is_none() {
+            let default_config = Self::default();
+            if let Some(parent) = path.parent() {
+                let _ = std::fs::create_dir_all(parent);
+                if let Ok(toml_str) = toml::to_string_pretty(&default_config) {
+                    let _ = std::fs::write(&path, toml_str);
+                }
             }
+            return default_config;
         }
 
-        default_config
+        // Fallback if profile doesn't exist
+        Self::default()
     }
 }

@@ -13,7 +13,7 @@ impl Module for CpuFreqModule {
         if let Ok(freq_str) = fs::read_to_string("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq") {
             if let Ok(khz) = freq_str.trim().parse::<f64>() {
                 let ghz = khz / 1_000_000.0;
-                return vec![("CPU Freq".to_string(), format!("{:.2} GHz", ghz))];
+                return vec![("CPU Freq (current)".to_string(), format!("{:.2} GHz", ghz))];
             }
         }
         

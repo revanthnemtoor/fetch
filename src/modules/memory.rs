@@ -1,5 +1,5 @@
-use std::fs;
 use crate::core::module::Module;
+use crate::core::sys_paths::MEMINFO;
 
 pub struct MemoryModule;
 
@@ -9,13 +9,13 @@ impl Module for MemoryModule {
     }
 
     fn fetch(&self) -> Vec<(String, String)> {
-        if let Ok(content) = fs::read_to_string("/proc/meminfo") {
+        if !MEMINFO.is_empty() {
             let mut mem_total = 0;
             let mut mem_available = 0;
             let mut found_total = false;
             let mut found_avail = false;
 
-            for line in content.lines() {
+            for line in MEMINFO.lines() {
                 if line.starts_with("MemTotal:") {
                     if let Some(val) = parse_kb(line) {
                         mem_total = val;
